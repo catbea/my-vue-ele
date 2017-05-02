@@ -1,11 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
-import tab1 from '@/components/zk-spinner/src/tab1.vue';
-import tab2 from '@/components/zk-spinner/src/tab2.vue';
-import data from '@/components/zk-spinner/src/data.vue';
 Vue.use(Router)
-
+import  goods from "../components/goods/goods.vue";
+import  seller from "../components/seller/seller.vue";
+import  rating from "../components/rating/rating.vue";
 export default new Router({
   mode: 'history',
   scrollBehavior (to, from, savedPosition) {
@@ -18,23 +16,23 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Hello',
-      component: Hello
+      name: '',
+      component:goods
     },
     {
-      path: '/tab1',
-      name: 'tab1',
-      component: tab1
+      path: '/goods',
+      name: 'goods',
+      component:goods
     },
     {
-      path: '/tab2',
-      name: 'tab2',
-      component: tab2
+      path: '/seller',
+      name: 'seller',
+      component:seller
     },
     {
-      path: '/data',
-      name: 'data',
-      component: data
-    }
+      path: '/ratings',
+      name: 'ratings',
+      component:rating
+    },
   ]
 })

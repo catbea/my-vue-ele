@@ -4,30 +4,31 @@
     <meta charset="utf-8">
     <title>my-vue</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="static/css/reset.css">
     <script>
-      (function(doc,win){
-        var docE1=doc.documentElement,
-            resizeEvt='orientationchange' in window ? 'orientationchange':'resize',
-            recalc=function(){
-              var clientWidth=docE1.clientWidth;
-              if(!clientWidth)return;
-              if(clientWidth>640){
-                docE1.style.fontSize="100px";
-              }else{
-                docE1.style.fontSize=100*(clientWidth/640)+'px';
-              }
-            };
-            if(!docE1.addEventListener)return;
-            win.addEventListener(resizeEvt,recalc,false);
-            doc.addEventListener('DOMContentLoaded',recalc,false);
-      })(document,window);
+      // (function(doc,win){
+      //   var docE1=doc.documentElement,
+      //       resizeEvt='orientationchange' in window ? 'orientationchange':'resize',
+      //       recalc=function(){
+      //         var clientWidth=docE1.clientWidth;
+      //         if(!clientWidth)return;
+      //         if(clientWidth>640){
+      //           docE1.style.fontSize="100px";
+      //         }else{
+      //           docE1.style.fontSize=100*(clientWidth/640)+'px';
+      //         }
+      //       };
+      //       if(!docE1.addEventListener)return;
+      //       win.addEventListener(resizeEvt,recalc,false);
+      //       doc.addEventListener('DOMContentLoaded',recalc,false);
+      // })(document,window);
     </script>
   </head>
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->
     <script>
-        
+
 
     </script>
   </body>

@@ -50,6 +50,10 @@ module.exports = {
         loader:["style","css","sass"]
       },
       {
+        test:/\.styl$/,
+        loader:["stylus"]
+      },
+      {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
         loader: 'url-loader',
         options: {
