@@ -13,11 +13,13 @@
       </div>
     </div>
     <router-view></router-view>
+    <shopcart></shopcart>
   </div>
 </template>
 
 <script>
 import header from "./components/header/header.vue"
+import shopcart from "./components/shopcart/shopcart.vue";
 const ERR_OK=0;
 export default {
   data() {
@@ -35,7 +37,8 @@ export default {
     });
   },
   components:{
-    "v-header":header
+    "v-header":header,
+    shopcart
   }
 }
 </script>
