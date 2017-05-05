@@ -12,14 +12,12 @@
         <router-link to="/seller">商家</router-link>
       </div>
     </div>
-    <router-view></router-view>
-    <shopcart></shopcart>
+    <router-view :seller="seller"></router-view>
   </div>
 </template>
 
 <script>
 import header from "./components/header/header.vue"
-import shopcart from "./components/shopcart/shopcart.vue";
 const ERR_OK=0;
 export default {
   data() {
@@ -37,8 +35,7 @@ export default {
     });
   },
   components:{
-    "v-header":header,
-    shopcart
+    "v-header":header
   }
 }
 </script>

@@ -17,6 +17,16 @@
         <div class="pay">{{payDesc}}</div>
       </div>
     </div>
+    <div class="ball-wrapper">
+      <div v-for="(ball,index) in balls">
+        <transition-group name="drop" @before-enter="beforeDrop" @enter="dropping" @after-enter="afterDrop">
+          <div v-show="ball.show" :key="index" class="ball">
+            <div class="inner inner-hook">
+            </div>
+          </div>
+        </transition-group>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,7 +38,7 @@ export default {
       default(){
         return [{
           price:10,
-          count:2
+          count:1
         }];
       }
     },
@@ -39,6 +49,28 @@ export default {
     minPrice:{
       type:Number,
       default:50
+    }
+  },
+  data(){
+    return {
+      balls:[
+        {
+          show:false
+        },
+        {
+          show:false
+        },
+        {
+          show:false
+        },
+        {
+          show:false
+        },
+        {
+          show:false
+        }
+      ],
+      dropBalls:[]
     }
   },
   computed:{
@@ -64,6 +96,60 @@ export default {
           return `还差￥`+diff+`元起送`;
       }else{
           return "去结算"
+      }
+    }
+  },
+  methods:{
+    drop(el){
+      console.log(el);
+        for (var i = 0; i < this.balls.length; i++) {
+          let ball=this.balls[i];
+          if(!ball.show){
+            ball.show=true;
+            ball.el=el;
+            this.dropBalls.push(ball);
+
+            return;
+          }
+        }
+    },
+    addFood(target){
+      this.drop(target);
+      this.$emit("shopcart.drop",event.target);
+    },
+    beforeDrop(el){
+      let count=this.dropBalls.length;
+      while (count--) {
+        let ball=this.balls[count];
+        if(ball.show){
+          let react=ball.el.getBoundingClientRect();
+          let x=react.left-32;
+          let y=-(window.innerHeight-react.top-22);
+          el.style.display="";
+          el.style.webkitTransform=`translate3d(0,`+y+`px,0)`;
+          el.style.transform=`translate3d(0,`+y+`px,0)`;
+          let inner=el.getElementsByClassName("inner-hook")[0];
+          inner.style.webkitTransform=`translate3d(`+x+`px,0,0)`;
+          inner.style.transform=`translate3d(`+x+`px,0,0)`;
+        }
+      }
+    },
+    dropping(el){
+      let rf=el.offsetHeight;
+      this.$nextTick(()=>{
+        el.style.webkitTransform=`translate3d(0,0,0)`;
+        el.style.transform=`translate3d(0,0,0)`;
+        let inner=el.getElementsByClassName("inner-hook")[0];
+        inner.style.webkitTransform=`translate3d(0,0,0)`;
+        inner.style.transform=`translate3d(0,0,0)`;
+        el.addEventListener('transitionend', done);
+      });
+    },
+    afterDrop(el){
+      let ball=this.dropBalls.shift();
+      if(ball){
+        ball.show=false;
+        el.style.display="none";
       }
     }
   }
@@ -162,6 +248,24 @@ export default {
         font-weight: 700;
         text-align: center;
         background: #2B333B;
+      }
+    }
+  }
+  .ball-wrapper{
+    .ball{
+      position: fixed;
+      left: 32px;
+      bottom: 22px;
+      z-index: 100;
+      .inner{
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #00ff00;
+        transition: all 0.3s linear;
+      }
+      &.drop-transition{
+        transition: all 0.3s cubic-bezier(0.49,-1.29,0.75,0.41);
       }
     }
   }
