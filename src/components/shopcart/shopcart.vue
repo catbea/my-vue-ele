@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="shopcart">
-    <div class="content">
+    <div class="content" @click="toggleList">
       <div class="content-left">
         <div class="logo-wrapper">
           <div class="logo" :class="{'highLight':totalCount>0}">
@@ -19,7 +19,7 @@
     </div>
     <div class="ball-wrapper">
       <div v-for="(ball,index) in balls">
-        <transition-group name="drop" @before-enter="beforeDrop" @enter="dropping" @after-enter="afterDrop">
+        <transition-group name="drop" v-on:before-enter="beforeEnter" v-on:enter="enter" v-on:after-enter="afterEnter">
           <div v-show="ball.show" :key="index" class="ball">
             <div class="inner inner-hook">
             </div>
@@ -27,10 +27,33 @@
         </transition-group>
       </div>
     </div>
+    <transition name="fold">
+      <div class="shopcart-list" v-show="listShow" ref="listContent">
+        <div class="list-header">
+          <h1 class="title">购物车</h1>
+          <span class="empty">清空</span>
+        </div>
+        <div class="list-content">
+          <ul>
+            <li class="food" v-for="food in selectFoods">
+              <span class="name">{{food.name}}</span>
+              <div class="price">
+                <span>￥{{food.price*food.count}}</span>
+              </div>
+              <div class="cartcontrol-wrapper">
+                <cartcontrol :food="food"></cartcontrol>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import BScroll from "better-scroll";
+import cartcontrol from "../cartcontrol/cartcontrol.vue";
 export default {
   props:{
     selectFoods:{
@@ -70,8 +93,9 @@ export default {
           show:false
         }
       ],
-      dropBalls:[]
-    }
+      dropBalls:[],
+      fold:true
+    };
   },
   computed:{
     totalPrice(){
@@ -97,6 +121,25 @@ export default {
       }else{
           return "去结算"
       }
+    },
+    listShow(){
+      if(!this.totalCount){
+        this.fold=true;
+        return false;
+      }
+      let show=!this.fold;
+      if(show){
+        this.$nextTick(()=>{
+          if(!this.scroll){
+            this.scroll=new BScroll(this.$refs.listContent,{
+              click:true
+            });
+          }else{
+            this.scroll.refresh();
+          }
+        });
+      }
+      return show;
     }
   },
   methods:{
@@ -108,16 +151,12 @@ export default {
             ball.show=true;
             ball.el=el;
             this.dropBalls.push(ball);
-
-            return;
+            return ;
           }
         }
     },
-    addFood(target){
-      this.drop(target);
-      this.$emit("shopcart.drop",event.target);
-    },
-    beforeDrop(el){
+    beforeEnter(el){
+      console.log(beforeDrop);
       let count=this.dropBalls.length;
       while (count--) {
         let ball=this.balls[count];
@@ -134,7 +173,7 @@ export default {
         }
       }
     },
-    dropping(el){
+    enter(el){
       let rf=el.offsetHeight;
       this.$nextTick(()=>{
         el.style.webkitTransform=`translate3d(0,0,0)`;
@@ -145,18 +184,32 @@ export default {
         el.addEventListener('transitionend', done);
       });
     },
-    afterDrop(el){
+    afterEnter(el){
       let ball=this.dropBalls.shift();
       if(ball){
         ball.show=false;
         el.style.display="none";
       }
+    },
+    addFood(target){
+      this.drop(target);
+      this.$emit("shopcart.drop",event.target);
+    },
+    toggleList(){
+      if(!this.totalCount){
+        return;
+      }
+      this.fold=!this.fold;
     }
+  },
+  components:{
+    cartcontrol
   }
 }
 </script>
 
 <style lang="scss">
+@import "../../common/scss/style.scss";
 .shopcart{
   position:fixed;
   width: 100%;
@@ -247,7 +300,8 @@ export default {
         height: 48px;
         font-weight: 700;
         text-align: center;
-        background: #2B333B;
+        background: #2BB333;
+        color: #fff;
       }
     }
   }
@@ -266,6 +320,62 @@ export default {
       }
       &.drop-transition{
         transition: all 0.3s cubic-bezier(0.49,-1.29,0.75,0.41);
+      }
+    }
+  }
+  .shopcart-list{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index:-1;
+    width: 100%;
+    transform: translate3d(0,-100%,0);
+    // transition: all 0.3s;
+    .list-header{
+      height: 40px;
+      line-height: 40px;
+      padding: 0 18px;
+      background: #f3f5f7;
+      border-bottom: 1px solid rgba(7,17,27,0.1);
+      .title{
+        float: left;
+        font-size: 14px;
+        color: rgb(7,17,27);
+      }
+      .empty{
+        float: right;
+        font-size: 12px;
+        color: rgb(0,160,220);
+      }
+    }
+    .list-content{
+      max-height: 217px;
+      padding: 0 12px;
+      background: #fff;
+      overflow: auto;
+      .food{
+        position:relative;
+        padding: 12px 0;
+        box-sizing: border-box;
+        @include border-1px(rgba(7,17,27,0.1));
+        .name{
+          line-height: 24px;
+          font-size: 14px;
+          color: rgb(7,17,27);
+        }
+        .price{
+          position: absolute;
+          right: 90px;
+          bottom: 12px;
+          line-height: 24px;
+          font-size: 14px;
+          color: rgb(240,20,20);
+        }
+        .cartcontrol-wrapper{
+          position: absolute;
+          right: 0;
+          bottom: 12px;
+        }
       }
     }
   }
