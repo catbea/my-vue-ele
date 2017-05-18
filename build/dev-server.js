@@ -26,7 +26,7 @@ var compiler = webpack(webpackConfig)
 var appData=require("../data.json");
 var seller=appData.seller;
 var goods=appData.goods;
-var rating=appData.rating;
+var ratings=appData.ratings;
 
 var apiRoutes=express.Router();
 
@@ -42,10 +42,10 @@ apiRoutes.get("/goods",function(req,res){
     data:goods
   });
 });
-apiRoutes.get("/rating",function(req,res){
+apiRoutes.get("/ratings",function(req,res){
   res.json({
     errno:0,
-    data:rating
+    data:ratings
   });
 });
 app.use("/api",apiRoutes);
