@@ -6,7 +6,7 @@
           <div class="desc">
             <star :size="36" :score="seller.score"></star>
             <span class="text">({{seller.ratingCount}})</span>
-            <span class="text">{{seller.sellCount}}</span>
+            <span class="text">月售{{seller.sellCount}}单</span>
           </div>
           <ul class="remark">
             <li class="block">
@@ -30,6 +30,19 @@
           </ul>
 
         </div>
+        <split></split>
+        <div class="bulletin">
+          <h1 class="title">公告与活动</h1>
+          <div class="content-wrapper">
+            <p class="content">{{seller.bulletin}}</p>
+          </div>
+          <ul v-if="seller.supports" class="supports">
+              <li class="support-item" v-for="(item,index) in seller.supports">
+                <span :index="index" class="icon" :class="iconMap[seller.supports[index].type]"></span>
+                <span class="text">{{seller.supports[index].description}}</span>
+              </li>
+          </ul>
+        </div>
       </div>
   </div>
 </template>
@@ -46,8 +59,12 @@ export default {
       type:Object
     }
   },
+  created(){
+    this.iconMap=["decrease","discount","special","invoice","guarantee"];
+  },
   components:{
-    star
+    star,
+    split
   }
 }
 </script>
@@ -71,7 +88,6 @@ export default {
     }
     .desc{
       padding-bottom: 18px;
-      line-height: 18px;
       font-size: 0;
       @include border-1px(rgba(7,17,27,0.1));
       .star{
@@ -80,8 +96,9 @@ export default {
         vertical-align: top;
       }
       .text{
-        margin-right: 12px;
         display: inline-block;
+        margin-right: 12px;
+        line-height: 18px;
         vertical-align: top;
         font-size: 10px;
         color: rgb(7,17,27);
@@ -94,9 +111,9 @@ export default {
         flex: 1;
         text-align: center;
         border-right: 1px solid rgba(7,17,27,0.1);
-      }
-      &.last-child{
-        border-right:0;
+        &:last-child{
+          border-right:0;
+        }
       }
       h2{
         margin-bottom: 4px;
@@ -113,6 +130,24 @@ export default {
         font-size: 24px;
       }
 
+    }
+  }
+  .bulletin{
+    padding: 18px 18px 0 18px;
+    .title{
+      margin-bottom: 8px;
+      color: rgb(7,17,27);
+      line-height: 14px;
+      font-size: 14px;
+    }
+    .content-wrapper{
+      padding: 0 12px 16px 12px;
+      @include border-1px(rgba(7,17,27,0.1));
+      .content{
+        line-height: 24px;
+        font-size: 12px;
+        color: rgb(240,20,20);
+      }
     }
   }
 }
