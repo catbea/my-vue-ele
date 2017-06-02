@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="seller">
+  <div class="seller" ref="sellerWrapper">
       <div class="seller-content">
         <div class="overview">
           <h1 class="title">{{seller.name}}</h1>
@@ -28,7 +28,9 @@
               </div>
             </li>
           </ul>
-
+          <div class="favorite" @click="taggleFavorite">
+              <span class="icon-favorite" :class="{'active':favorite}">{{favoriteText}}</span>
+          </div>
         </div>
         <split></split>
         <div class="bulletin">
@@ -43,24 +45,103 @@
               </li>
           </ul>
         </div>
+        <split></split>
+        <div class="pics">
+          <h1 class="title">商家实景</h1>
+          <div class="pic-wrapper" ref="picWrapper">
+            <ul class="pic-list" ref="picList">
+              <li class="pic-item" v-for="pic in seller.pics">
+                <img :src="pic" alt="" width="120" height="90">
+              </li>
+            </ul>
+          </div>
+        </div>
+        <split></split>
+        <div class="info">
+          <h1 class="title">商家信息</h1>
+          <ul>
+            <li class="info-item" v-for="info in seller.infos">
+              {{info}}
+            </li>
+          </ul>
+        </div>
       </div>
   </div>
 </template>
 
 <script>
 import BScroll from "better-scroll";
-import {formatDate} from "../../common/js/date.js";
 import star from "../star/star.vue";
 import split from "../split/split.vue";
-import ratingselect from "../ratings/ratingselect.vue";
+import {saveToLocal,loadFromLocal} from "../../common/js/store.js";
 export default {
   props:{
     seller:{
       type:Object
     }
   },
+  data(){
+    return {
+      favorite:(()=>{
+        return loadFromLocal(this.seller.id,'favorite',false);
+      })
+    }
+  },
   created(){
     this.iconMap=["decrease","discount","special","invoice","guarantee"];
+  },
+  computed:{
+    favoriteText(){
+        return this.favorite?"已收藏":"收藏";
+    }
+  },
+  mounted(){
+    this._initScroll();
+    this._initPicScroll();
+  },
+  watch:{
+    'seller'(){
+      this.$nextTick(() => {
+          this._initScroll();
+          this._initPicScroll();
+      });
+    }
+  },
+  methods:{
+    taggleFavorite(event){
+      if(!event._constructed){
+        return;
+      }
+      this.favorite=!this.favorite;
+      saveToLocal(this.seller.id,'favorite',this.favorite);
+    },
+    _initScroll(){
+        if(!this.sellerScroll){
+          this.sellerScroll=new BScroll(this.$refs.sellerWrapper,{
+              click:true
+          });
+        }else{
+          this.sellerScroll.refresh();
+        }
+    },
+    _initPicScroll(){
+      if(this.seller.pics){
+        let picWidth=120;
+        let margin=6;
+        let width=(picWidth+margin)*this.seller.pics.length-margin;
+        this.$refs.picList.style.width = width + 'px';
+        this.$nextTick(()=>{
+          if(!this.picScroll){
+            this.picScroll=new BScroll(this.$refs.picWrapper,{
+              scrollX:true,
+              eventPassthrough:'vertical'
+            });
+          }else{
+            this.picScroll.refresh();
+          }
+        });
+      }
+    }
   },
   components:{
     star,
@@ -80,6 +161,7 @@ export default {
   overflow: hidden;
   .overview{
     padding: 18px;
+    position: relative;
     .title{
       margin-bottom: 8px;
       color: rgb(7,17,27);
@@ -131,6 +213,22 @@ export default {
       }
 
     }
+    .favorite{
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      text-align: center;
+      .icon-favorite{
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        color: #d4d6d9;
+        line-height: 24px;
+        &.active{
+          color:rgb(240,20,20);
+        }
+      }
+    }
   }
   .bulletin{
     padding: 18px 18px 0 18px;
@@ -148,6 +246,88 @@ export default {
         font-size: 12px;
         color: rgb(240,20,20);
       }
+    }
+    .supports{
+      .support-item{
+        padding: 16px 12px;
+        @include border-1px(rgba(7,17,27,0.1));
+        &:last-child:after{
+          border:none;
+        }
+        .icon{
+          vertical-align: top;
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          margin-right: 6px;
+          background-size: 16px 16px;
+          background-repeat: no-repeat;
+          background-position: center;
+          font-size: 0;
+          &.decrease{
+            @include bg_image("decrease_4");
+          }
+          &.discount{
+            @include bg_image("discount_4");
+          }
+          &.special{
+            @include bg_image("special_4");
+          }
+          &.guarantee{
+            @include bg_image("guarantee_4");
+          }
+          &.invoice{
+            @include bg_image("invoice_4");
+          }
+        }
+        .text{
+          line-height: 16px;
+          font-size: 12px;
+          color: rgb(7,17,27);
+        }
+      }
+    }
+  }
+  .pics{
+    padding: 18px;
+    .title{
+      margin-bottom: 12px;
+      line-height: 14px;
+      color: rgb(7,17,21);
+      font-size: 14px;
+    }
+    .pic-wrapper{
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      .pic-list{
+        font-size: 0;
+        .pic-item{
+          display: inline-block;
+          margin-right: 6px;
+          width: 120px;
+          height: 90px;
+          &:last-child{
+            margin-right: 0;
+          }
+        }
+      }
+    }
+  }
+  .info{
+    padding: 18px 18px 0 18px;
+    .title{
+      padding-bottom: 12px;
+      line-height: 14px;
+      color: rgb(7,17,21);
+      font-size: 14px;
+      @include border-1px(rgba(7,17,27,0.1));
+    }
+    .info-item{
+      padding: 16px 12px;
+      line-height: 16px;
+      @include border-1px(rgba(7,17,27,0.1));
+      font-size: 12px;
     }
   }
 }
